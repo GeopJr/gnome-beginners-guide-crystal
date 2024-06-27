@@ -25,6 +25,7 @@ module Text::Viewer
       end
 
       self.set_accels_for_action("app.quit", {"<primary>q"})
+      self.set_accels_for_action("win.open", {"<Ctrl>o"})
 
       self.add_action about_action
       self.add_action preferences_action
