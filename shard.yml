@@ -1,0 +1,17 @@
+name: text-viewer
+version: 0.1.0
+
+authors:
+  - Evan Paterakis <evan@geopjr.dev>
+
+targets:
+  text-viewer:
+    main: src/text-viewer.cr
+
+dependencies:
+  libadwaita:
+    github: GeopJr/libadwaita.cr
+
+crystal: '>= 1.12.1'
+
+license: MIT
