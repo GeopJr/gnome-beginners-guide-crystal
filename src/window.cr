@@ -6,6 +6,7 @@ module Text::Viewer
       "main_text_view",
       "open_button",
       "cursor_pos",
+      "toast_overlay",
     }
   )]
   class Window < Adw::ApplicationWindow
@@ -15,6 +16,7 @@ module Text::Viewer
     @main_text_view : Gtk::TextView
     @open_button : Gtk::Button
     @cursor_pos : Gtk::Label
+    @toast_overlay : Adw::ToastOverlay
 
     @settings : Gio::Settings
 
@@ -27,6 +29,7 @@ module Text::Viewer
       @main_text_view = Gtk::TextView.cast(template_child("main_text_view"))
       @open_button = Gtk::Button.cast(template_child("open_button"))
       @cursor_pos = Gtk::Label.cast(template_child("cursor_pos"))
+      @toast_overlay = Adw::ToastOverlay.cast(template_child("toast_overlay"))
 
       open_action = Gio::SimpleAction.new("open", nil)
       open_action.activate_signal.connect do
@@ -82,6 +85,8 @@ module Text::Viewer
         return if text.size == 0
 
         file_io.print(text)
+
+        @toast_overlay.add_toast(Adw::Toast.new("Saved as “#{File.basename(file_path, File.extname(file_path))}“"))
       end
     end
 
@@ -114,6 +119,9 @@ module Text::Viewer
         buffer.text = file_io.gets_to_end
         # Reposition the cursor so it's at the start of the text
         buffer.place_cursor(buffer.start_iter)
+
+        # Show a toast for the successful loading
+        @toast_overlay.add_toast(Adw::Toast.new("Opened “#{self.title}“"))
       end
     end
   end
