@@ -16,8 +16,12 @@ module Text::Viewer
     @open_button : Gtk::Button
     @cursor_pos : Gtk::Label
 
+    @settings : Gio::Settings
+
     def initialize
       super()
+
+      @settings = Gio::Settings.new("com.example.TextViewer")
 
       @header_bar = Adw::HeaderBar.cast(template_child("header_bar"))
       @main_text_view = Gtk::TextView.cast(template_child("main_text_view"))
@@ -42,6 +46,10 @@ module Text::Viewer
         iter = buffer.iter_at_offset(cursor_position)
         @cursor_pos.label = "Ln #{iter.line}, Col #{iter.line_offset}"
       end
+
+      @settings.bind("window-width", self, "default-width", Gio::SettingsBindFlags::Default)
+      @settings.bind("window-height", self, "default-height", Gio::SettingsBindFlags::Default)
+      @settings.bind("window-maximized", self, "maximized", Gio::SettingsBindFlags::Default)
     end
 
     private def save_file_dialog
