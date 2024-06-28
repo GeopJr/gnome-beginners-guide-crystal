@@ -5,6 +5,7 @@ module Text::Viewer
       "header_bar",
       "main_text_view",
       "open_button",
+      "cursor_pos",
     }
   )]
   class Window < Adw::ApplicationWindow
@@ -13,6 +14,7 @@ module Text::Viewer
     @header_bar = Adw::HeaderBar
     @main_text_view : Gtk::TextView
     @open_button : Gtk::Button
+    @cursor_pos : Gtk::Label
 
     def initialize
       super()
@@ -20,12 +22,20 @@ module Text::Viewer
       @header_bar = Adw::HeaderBar.cast(template_child("header_bar"))
       @main_text_view = Gtk::TextView.cast(template_child("main_text_view"))
       @open_button = Gtk::Button.cast(template_child("open_button"))
+      @cursor_pos = Gtk::Label.cast(template_child("cursor_pos"))
 
       open_action = Gio::SimpleAction.new("open", nil)
       open_action.activate_signal.connect do
         self.open_file_dialog
       end
       self.add_action open_action
+
+      @main_text_view.buffer.notify_signal["cursor-position"].connect do
+        buffer = @main_text_view.buffer
+        cursor_position = buffer.cursor_position
+        iter = buffer.iter_at_offset(cursor_position)
+        @cursor_pos.label = "Ln #{iter.line}, Col #{iter.line_offset}"
+      end
     end
 
     private def open_file_dialog
