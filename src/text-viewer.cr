@@ -26,6 +26,7 @@ module Text::Viewer
 
       self.set_accels_for_action("app.quit", {"<primary>q"})
       self.set_accels_for_action("win.open", {"<Ctrl>o"})
+      self.set_accels_for_action("win.save-as", {"<Ctrl><Shift>s"})
 
       self.add_action about_action
       self.add_action preferences_action

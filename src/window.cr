@@ -30,11 +30,50 @@ module Text::Viewer
       end
       self.add_action open_action
 
+      save_action = Gio::SimpleAction.new("save-as", nil)
+      save_action.activate_signal.connect do
+        self.save_file_dialog
+      end
+      self.add_action save_action
+
       @main_text_view.buffer.notify_signal["cursor-position"].connect do
         buffer = @main_text_view.buffer
         cursor_position = buffer.cursor_position
         iter = buffer.iter_at_offset(cursor_position)
         @cursor_pos.label = "Ln #{iter.line}, Col #{iter.line_offset}"
+      end
+    end
+
+    private def save_file_dialog
+      filechooser = Gtk::FileChooserNative.new("Save File As", nil, Gtk::FileChooserAction::Save, "_Save", "_Cancel")
+      filechooser.transient_for = self
+      filechooser.response_signal.connect do |response|
+        if Gtk::ResponseType.from_value(response) == Gtk::ResponseType::Accept
+          self.save_file(filechooser.file)
+        end
+      end
+
+      filechooser.show
+    end
+
+    private def save_file(file : Gio::File?)
+      return if file.nil?
+
+      file_path = file.not_nil!.path.not_nil!
+      File.open(file_path, "w") do |file_io|
+        buffer = @main_text_view.buffer
+
+        # Retrieve the iterator at the start of the buffer
+        start_iter = buffer.start_iter
+
+        # Retrieve the iterator at the end of the buffer
+        end_iter = buffer.end_iter
+
+        # Retrieve all the visible text between the two bounds
+        text = buffer.text(start_iter, end_iter, false)
+        return if text.size == 0
+
+        file_io.print(text)
       end
     end
 
